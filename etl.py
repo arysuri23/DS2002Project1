@@ -20,12 +20,28 @@ def jsonToSQL(data):
     engine = create_engine('sqlite://', echo=False)
     df.to_sql('BeerStyles', con=engine)
     return engine.execute("SELECT * FROM BeerStyles").fetchall()
+
+
+def get_api_response(url):
+    try:
+        response = requests.get(url)
+    except requests.exceptions.HTTPError as errh:
+        return "An Http Error occurred: " + repr(errh)
+    except requests.exceptions.ConnectionError as errc:
+        return "An Error Connecting to the API occurred: " + repr(errc)
+    except requests.exceptions.Timeout as errt:
+        return "A Timeout Error occurred: " + repr(errt)
+    except requests.exceptions.RequestException as err:
+        return "An Unknown Error occurred: " + repr(err)
+        
+    return response
     
 
 print("Benchmark i.1: Beer Data is fetched from api")
 #Source: https://rustybeer.herokuapp.com/docs#/default/styles
+beerStylesJSON = get_api_response('https://rustybeer.herokuapp.com/styles')
 
-beerStylesJSON = requests.get('https://rustybeer.herokuapp.com/styles')
+    
 print("Initial json data: ")
 print(beerStylesJSON.json())
 print("\n")
